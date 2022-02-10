@@ -28,7 +28,7 @@ jobs:
 
       - name: Generate Protocol
         run: |
-          .docs/protocol/make.sh 
+          ./docs/protocol/make.sh 
           cp ./docs/protocol/protocol.docx site
           cp ./docs/protocol/protocol.pdf site
 
