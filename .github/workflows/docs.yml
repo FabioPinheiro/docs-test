@@ -1,0 +1,42 @@
+name: DOCS
+
+on:
+  #pull_request:
+  #  branches-ignore:
+  #    - "gh-pages"
+  push:
+    branches:
+      - "main"
+      - "master"
+    # branches-ignore:
+    #   - "gh-pages"
+  workflow_dispatch:
+
+jobs:
+  generate-and-deploy:
+    name: DOCS
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/japgolly/setup-everything-scala
+      - uses: actions/checkout@v2
+      - run: sudo apt-get install -y texlive-xetex pandoc pandoc-citeproc
+
+      - name: Make Site
+        run: |
+          mkdir site
+
+      - name: Generate Protocol
+        run: |
+          .docs/protocol/make.sh 
+          cp ./docs/protocol/protocol.docx site
+          cp ./docs/protocol/protocol.pdf site
+
+      - name: Generate Article
+          ./docs/article/Makefile
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: site # The folder the action should deploy.
