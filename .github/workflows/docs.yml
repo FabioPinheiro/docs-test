@@ -1,4 +1,4 @@
-name: DOCS
+name: Generate_Documentation
 
 on:
   schedule:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   generate-and-deploy:
-    name: DOCS
+    name: Generate_Documentation
     concurrency:
       group: make-docs-website
       cancel-in-progress: true
