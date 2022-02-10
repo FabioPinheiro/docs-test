@@ -1,15 +1,11 @@
 name: DOCS
 
 on:
-  #pull_request:
-  #  branches-ignore:
-  #    - "gh-pages"
+  schedule:
+    - cron: 0 0 * * 6
   push:
     branches:
-      - "main"
       - "master"
-    # branches-ignore:
-    #   - "gh-pages"
   workflow_dispatch:
 
 jobs:
@@ -25,6 +21,22 @@ jobs:
       - name: Make Site
         run: |
           mkdir site
+          echo "theme: jekyll-theme-cayman" > site/_config.yml
+          cat <<EOF > site/README.md
+            ---
+            layout: post
+            title: Title of the page
+            ---
+            
+            # Documentation website
+
+            ## Article about something
+            [Article](./article.pdf).
+            
+            ## The Protocol
+
+            You can find the [Protocol here](./protocol.pdf).
+          EOF
 
       - name: Generate Protocol
         run: |
@@ -36,15 +48,6 @@ jobs:
         run: |
           make -C ./docs/article/
           cp ./docs/article/article.pdf site
-
-      - name: Site
-        run: |
-          cat <<EOF > site/README.md
-            # Test Web Site
-
-            [Article](./article.pdf).
-            [Protocol](./protocol.pdf).
-          EOF
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.2.3
