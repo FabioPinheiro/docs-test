@@ -33,7 +33,9 @@ jobs:
           cp ./docs/protocol/protocol.pdf site
 
       - name: Generate Article
+        run: |
           ./docs/article/Makefile
+          find .
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.2.3
