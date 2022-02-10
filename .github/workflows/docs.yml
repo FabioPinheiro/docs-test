@@ -37,6 +37,15 @@ jobs:
           make -C ./docs/article/
           cp ./docs/article/article.pdf site
 
+      - name: Site
+        run: |
+          cat <<EOF > site/README.md
+            # Test Web Site
+
+            [Article](./article.pdf).
+            [Protocol](./protocol.pdf).
+          EOF
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.2.3
         with:
