@@ -24,20 +24,17 @@ jobs:
         run: |
           mkdir site
           echo "theme: jekyll-theme-cayman" > site/_config.yml
-          cat <<EOF > site/README.md
-            ---
-            layout: post
-            title: Title of the page
-            ---
-            
+          cat <<EOF > site/README.md          
             # Documentation website
 
             ## Article about something
+
             [Article](./article.pdf).
             
             ## The Protocol
 
             You can find the [Protocol here](./protocol.pdf).
+
           EOF
 
       - name: Generate Protocol
