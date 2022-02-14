@@ -14,7 +14,7 @@ jobs:
         run: |
           # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/g'
           echo ::set-output name=match::true
-          echo ::set-output tag-name=match::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/g')
+          echo ::set-output name=tag-name::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/g')
 
         # if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         # fi
