@@ -10,11 +10,6 @@ jobs:
     name: "release-job-name"
     runs-on: ubuntu-latest
     steps:
-      - name: "test"
-        run: |
-          echo tag
-            - name: Check Tag
-
       - id: check-tag
         run: |
           # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/g'
