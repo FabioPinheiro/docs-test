@@ -5,21 +5,35 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-M[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-RC[0-9]+"
+  workflow_dispatch:
+
 jobs:
-  release-job:
-    name: "release-job-name"
+  release-tag-job:
+    name: "release-tag-job-name"
     runs-on: ubuntu-latest
+    outputs:
+      tag-value: ${{ steps.check-tag.outputs.tag-value }}
     steps:
       - id: check-tag
         run: |
           # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/g'
-          echo ::set-output name=match::true
-          echo ::set-output name=tag-name::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/g')
+          echo ::set-output name=publish::true
+          echo ::set-output name=tag-value::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/g')
 
         # if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         # fi
 
       - name: Build
-        if: steps.check-tag.outputs.match == 'true'
+        if: steps.check-tag.outputs.publish == 'true'
         run: |
-          echo "Tag is a match  ${{ steps.check-tag.outputs.tag-name }}"
+          echo "Tag is a publish  ${{ steps.check-tag.outputs.tag-value }}"
+  test-tag:
+    needs: [release-tag-job]
+    name: "test tag job"
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo test1: ${{ needs.release-tag-job.outputs.tag-value }}
+          echo test2: $RELEASE_VERSION
+        env:
+          RELEASE_VERSION: ${{ needs.release-tag-job.outputs.tag-value }}
