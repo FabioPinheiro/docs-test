@@ -21,13 +21,13 @@ jobs:
           echo ::set-output name=tag-value::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x')
 
       - name: Release Workflow tag info
-        if: steps.check-tag.outcome != 'success'
+        if: steps.check-tag.outcome == 'success'
         run: echo "Tag '${{ steps.check-tag.outputs.tag-value }}' will be publish."
       - name: STOP RELEASE WORKFLOW
-        if: steps.check-tag.outcome != 'failure'
+        if: steps.check-tag.outcome == 'failure'
         run: |
           echo The git refs '${{ github.event.ref }}' is not a proper tag to publish.
-          exit 100
+          exit 1
 
   test-tag:
     needs: [release-tag-job]
