@@ -14,13 +14,15 @@ jobs:
     outputs:
       tag-value: ${{ steps.check-tag.outputs.tag-value }}
     steps:
-      - id: check-tag
+      - name: Get tag
+        id: check-tag
         continue-on-error: true
         run: |
           # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x' #if [ $? -eq 0 ]; then else fi
           echo ::set-output name=tag-value::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x')
+          # ... check if everything  clean to make a release with this tag
 
-      - name: Release Workflow tag info
+      - name: INFO TAG VALUE
         if: steps.check-tag.outcome == 'success'
         run: echo "Tag '${{ steps.check-tag.outputs.tag-value }}' will be publish."
       - name: STOP RELEASE WORKFLOW
