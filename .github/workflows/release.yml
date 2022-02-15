@@ -15,28 +15,19 @@ jobs:
       tag-value: ${{ steps.check-tag.outputs.tag-value }}
     steps:
       - id: check-tag
+        continue-on-error: true
         run: |
-          # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x'
-          TMP=$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x')
-          if [ $? -eq 0 ]; then
-            echo OK
-            echo ::set-output name=publish::true
-            echo ::set-output name=tag-value::$TMP
-          else
-            echo The git refs '${{ github.event.ref }}' is not a proper tag to publish
-            echo ::set-output name=publish::false
-            echo ::set-output name=tag-value::
-          fi
+          # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x' #if [ $? -eq 0 ]; then else fi
+          echo ::set-output name=tag-value::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x')
 
-        # if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        # fi
-
-      - name: Build
-        if: steps.check-tag.outputs.publish == 'true'
-        run: echo "Tag is a publish  ${{ steps.check-tag.outputs.tag-value }}"
-      - name: STOP BUILD
-        if: steps.check-tag.outputs.publish == 'false'
-        run: exit 100
+      - name: Release Workflow tag info
+        if: steps.check-tag.outcome != 'success'
+        run: echo "Tag '${{ steps.check-tag.outputs.tag-value }}' will be publish."
+      - name: STOP RELEASE WORKFLOW
+        if: steps.check-tag.outcome != 'failure'
+        run: |
+          echo The git refs '${{ github.event.ref }}' is not a proper tag to publish.
+          exit 100
 
   test-tag:
     needs: [release-tag-job]
