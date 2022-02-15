@@ -16,17 +16,28 @@ jobs:
     steps:
       - id: check-tag
         run: |
-          # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/g'
-          echo ::set-output name=publish::true
-          echo ::set-output name=tag-value::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/g')
+          # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x'
+          TMP=$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x')
+          if [ $? -eq 0 ]; then
+            echo OK
+            echo ::set-output name=publish::true
+            echo ::set-output name=tag-value::$TMP
+          else
+            echo The git refs '${{ github.event.ref }}' is not a proper tag to publish
+            echo ::set-output name=publish::false
+            echo ::set-output name=tag-value::
+          fi
 
         # if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         # fi
 
       - name: Build
         if: steps.check-tag.outputs.publish == 'true'
-        run: |
-          echo "Tag is a publish  ${{ steps.check-tag.outputs.tag-value }}"
+        run: echo "Tag is a publish  ${{ steps.check-tag.outputs.tag-value }}"
+      - name: STOP BUILD
+        if: steps.check-tag.outputs.publish == 'false'
+        run: exit 100
+
   test-tag:
     needs: [release-tag-job]
     name: "test tag job"
