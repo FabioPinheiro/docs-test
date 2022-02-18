@@ -5,6 +5,9 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-M[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-RC[0-9]+"
+    branches:
+      - "master"
+      - "main"
   workflow_dispatch:
 
 jobs:
@@ -31,13 +34,35 @@ jobs:
           echo The git refs '${{ github.event.ref }}' is not a proper tag to publish.
           exit 1
 
-  test-tag:
-    needs: [release-tag-job]
-    name: "test tag job"
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo test1: ${{ needs.release-tag-job.outputs.tag-value }}
-          echo test2: $RELEASE_VERSION
-        env:
-          RELEASE_VERSION: ${{ needs.release-tag-job.outputs.tag-value }}
+      - name: TEST
+        run: |
+          echo '{"environment": "${{ github.ref_name }}", "tag": "${{ env.TAG }}", ${{ github.ref_type }}}'
+
+      - name: Set ENV & TAG convention
+        run: |
+          branchPrefix=$(git rev-parse --abbrev-ref HEAD | sed -E 's/(^ATA\-[0-9]+).*/\1/' | tr '[:upper:]' '[:lower:]')
+          if [[ ${GITHUB_REF_TYPE} == "tag" ]]
+          then
+              tag=$(echo $GITHUB_REF_NAME)
+              echo "TAG=$tag" >> $GITHUB_ENV
+              echo "::set-output name=tag::$tag"
+          else
+              revCount=$(git rev-list HEAD --count)
+              shaShort=$(git rev-parse --short HEAD)
+              tag="${branchPrefix}-${revCount}-${shaShort}"
+              echo "TAG=$tag" >> $GITHUB_ENV
+              echo "::set-output name=tag::$tag"
+          fi
+          echo "ENV=$branchPrefix" >> $GITHUB_ENV
+          . $GITHUB_ENV && echo "Env short name set to $ENV. Image tag set to $TAG"
+
+  # test-tag:
+  #   needs: [release-tag-job]
+  #   name: "test tag job"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: |
+  #         echo test1: ${{ needs.release-tag-job.outputs.tag-value }}
+  #         echo test2: $RELEASE_VERSION
+  #       env:
+  #         RELEASE_VERSION: ${{ needs.release-tag-job.outputs.tag-value }}
