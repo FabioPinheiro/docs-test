@@ -19,26 +19,44 @@ jobs:
       context_tag: ${{ steps.git-context.outputs.tag }}
       context_ref_type: ${{ steps.git-context.outputs.ref_type }}
       context_ref_name: ${{ steps.git-context.outputs.ref_name }}
-      context_sha: ${{ steps.git-context.outputs.sha }}
       context_shaShort: ${{ steps.git-context.outputs.shaShort }}
-      context_context: ${{ steps.git-context.outputs.context }}
+      context_branch_prefix: ${{ steps.git-context.outputs.branch_prefix }}
     steps:
       - name: Get git context
         id: git-context
 
         run: |
-          echo ::set-output name=context_tag::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x')
-          echo ::set-output name=context_ref_type::${{ github.ref_type }}
-          echo ::set-output name=context_ref_name::${{ github.ref_name }}
-          echo ::set-output name=context_sha::${{ github.sha }}
-          echo ::set-output name=context_shaShort::$(${{ github.sha }} | head -c 7)
-          CONTEXT='{ ${{ steps.git-context.outputs.tag-value }}
+          if [[ ${{ github.ref_type }} == "tag" ]]
+          then
+            branch_prefix=${{ github.ref_name }}
+          elif [[ ${{ github.ref_type }} == "branch" ]]
+          then
+            branch_prefix=$(${{ github.ref_name }} | sed -E 's/(^ATA\-[0-9]+).*/\1/' | tr '[:upper:]' '[:lower:]')
+          else
+            echo The 'github.ref_type' (${{ github.ref_type }}) is not 'branch' or 'tag'
+            exit 1
+          fi
+
+          echo ::set-output name=tag::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x')
+          echo ::set-output name=ref_type::${{ github.ref_type }}
+          echo ::set-output name=ref_name::${{ github.ref_name }}
+          echo ::set-output name=shaShort::$(${{ github.sha }} | head -c 7)
+          echo ::set-output name=branch_prefix::$branch_prefix
+
+      - name: Dump context
+        run: |
+          echo 'Dump GitHub context = ${{ toJSON(github) }}'
+          echo 'Dump job context = ${{ toJSON(job) }}'
+          echo 'Dump steps context = ${{ toJSON(steps) }}'
+          echo 'Dump runner context = ${{ toJSON(runner) }}'
+          echo 'Dump strategy context = ${{ toJSON(strategy) }}'
+          echo 'Dump matrix context = ${{ toJSON(matrix) }}'
+
+          echo '{ ${{ steps.git-context.outputs.tag-value }}
             "ref_type": "${{ steps.git-context.outputs.context_ref_type }}",
             "ref_name": "${{ steps.git-context.outputs.context_ref_name }}",
-            "sha": "${{ steps.git-context.outputs.context_sha }}",
             "shaShort": "${{ steps.git-context.outputs.context_shaShort }}
           }'
-          echo ::set-output name=context_context::$CONTEXT
 
       #   continue-on-error: true
       #   run: |
