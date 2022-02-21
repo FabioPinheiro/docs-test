@@ -59,7 +59,7 @@ jobs:
           }'
 
   test-context:
-    #if: ${{ github.ref_type }} == branch
+    if: github.ref_type == 'tag'
     needs: [job-context]
     name: "Dump My context"
     runs-on: ubuntu-latest
