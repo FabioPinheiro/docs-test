@@ -73,6 +73,20 @@ jobs:
             "context_branch_prefix": "${{ needs.job-context.outputs.context_branch_prefix }}"
           }'
 
+  test-context2:
+    if: needs.job-context.outputs.context_ref_type == 'branch'
+    needs: [job-context]
+    name: "Dump My context"
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'Dump my context = {
+            "context_tag": "${{ needs.job-context.outputs.context_tag }}",
+            "context_ref_type": "${{ needs.job-context.outputs.context_ref_type }}",
+            "context_ref_name": "${{ needs.job-context.outputs.context_ref_name }}",
+            "context_shaShort": "${{ needs.job-context.outputs.context_shaShort }}",
+            "context_branch_prefix": "${{ needs.job-context.outputs.context_branch_prefix }}"
+          }'
       #   continue-on-error: true
       #   run: |
       #     # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x' # if [ $? -eq 0 ]; then else fi
