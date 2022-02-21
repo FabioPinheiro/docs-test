@@ -12,8 +12,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  release-tag-job:
-    name: "release-tag-job-name"
+  job-context:
+    name: "job-context-name"
     runs-on: ubuntu-latest
     outputs:
       context_tag: ${{ steps.git-context.outputs.tag }}
@@ -52,10 +52,24 @@ jobs:
           echo 'Dump strategy context = ${{ toJSON(strategy) }}'
           echo 'Dump matrix context = ${{ toJSON(matrix) }}'
 
-          echo '{ ${{ steps.git-context.outputs.tag-value }}
-            "ref_type": "${{ steps.git-context.outputs.context_ref_type }}",
-            "ref_name": "${{ steps.git-context.outputs.context_ref_name }}",
-            "shaShort": "${{ steps.git-context.outputs.context_shaShort }}
+          echo 'Dump my context = { ${{ steps.git-context.outputs.tag-value }}
+            "ref_type": "${{ steps.git-context.outputs.ref_type }}",
+            "ref_name": "${{ steps.git-context.outputs.ref_name }}",
+            "shaShort": "${{ steps.git-context.outputs.shaShort }}"
+          }'
+
+  test-context:
+    needs: [job-context]
+    name: "Dump My context"
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'Dump my context = {
+            "context_tag": "${{ needs.job-context.outputs.context_tag }}",
+            "context_ref_type": "${{ needs.job-context.outputs.context_ref_type }}",
+            "context_ref_name": "${{ needs.job-context.outputs.context_ref_name }}",
+            "context_shaShort": "${{ needs.job-context.outputs.context_shaShort }}",
+            "context_branch_prefix": "${{ needs.job-context.outputs.context_branch_prefix }}"
           }'
 
       #   continue-on-error: true
@@ -90,14 +104,3 @@ jobs:
       #     fi
       #     echo "ENV=$branchPrefix" >> $GITHUB_ENV
       #     . $GITHUB_ENV && echo "Env short name set to $ENV. Image tag set to $TAG"
-
-  # test-tag:
-  #   needs: [release-tag-job]
-  #   name: "test tag job"
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - run: |
-  #         echo test1: ${{ needs.release-tag-job.outputs.tag-value }}
-  #         echo test2: $RELEASE_VERSION
-  #       env:
-  #         RELEASE_VERSION: ${{ needs.release-tag-job.outputs.tag-value }}
