@@ -33,7 +33,7 @@ jobs:
           then
             branch_prefix=$(echo ${{ github.ref_name }} | sed -E 's/(^ATA\-[0-9]+).*/\1/' | tr '[:upper:]' '[:lower:]')
           else
-            echo The 'github.ref_type' (${{ github.ref_type }}) is not 'branch' or 'tag'
+            echo "The 'github.ref_type' ${{ github.ref_type }} is not 'branch' or 'tag'"
             exit 1
           fi
 
