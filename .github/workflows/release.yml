@@ -40,7 +40,7 @@ jobs:
           echo ::set-output name=tag::$(echo ${{ github.event.ref }} | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x')
           echo ::set-output name=ref_type::${{ github.ref_type }}
           echo ::set-output name=ref_name::${{ github.ref_name }}
-          echo ::set-output name=shaShort::$(${{ github.sha }} | head -c 7)
+          echo ::set-output name=shaShort::$(echo ${{ github.sha }} | head -c 7)
           echo ::set-output name=branch_prefix::$branch_prefix
 
       - name: Dump context
