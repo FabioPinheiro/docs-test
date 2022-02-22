@@ -1,4 +1,5 @@
 name: "Release Workflow"
+
 on:
   push:
     tags:
@@ -9,6 +10,9 @@ on:
     branches:
       - "master"
       - "main"
+  pull_request:
+    branches:
+      - "master"
   workflow_dispatch:
 
 jobs:
@@ -58,8 +62,51 @@ jobs:
             "shaShort": "${{ steps.git-context.outputs.shaShort }}"
           }'
 
+  test-sbt:
+    runs-on: ubuntu-latest
+    env:
+      SBT_OPTS: -Xmx2048m
+      JAVA_OPTS: -Xmx2048m
+      JVM_OPTS: -Xmx2048M
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Add Atala GitHub packages credentials
+        run: |
+          ls -la
+          echo $HOME
+          pwd
+          mkdir -p $HOME/.sbt/1.0/ && echo -e "realm=GitHub Package Registry\nhost=maven.pkg.github.com\nuser=test\npassword=pass\n" > $HOME/.sbt/1.0/.credentials
+          find $HOME/.sbt
+          echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          echo "bbbbbbbbbbbbbbbbbbbbbbbb"
+          ls -la
+      - name: test GitHub packages credentials
+        run: |
+          ls -la
+          echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          echo $HOME
+          echo "bbbbbbbbbbbbbbbbbbbbbbbb"
+          pwd
+          echo "cccccccccccccccc"
+          find $HOME/.sbt
+          echo "dddddddddddddddddddddd"
+          find .
+
+      - name: Build and Test
+        run: |
+          #sbt -v +test
+          sbt -v "show credentials"
+
   test-context:
-    if: (github.ref_type == 'branch') && (github.ref_name == 'main')
+    if: ((github.ref_type == 'branch') && (github.ref_name == 'master') && (github.event_name != 'pull_request') || (github.ref_type == 'tag'))
     needs: [job-context]
     name: "Dump My context"
     runs-on: ubuntu-latest
@@ -73,6 +120,20 @@ jobs:
             "context_branch_prefix": "${{ needs.job-context.outputs.context_branch_prefix }}"
           }'
 
+  test-context2:
+    if: needs.job-context.outputs.context_ref_type == 'branch'
+    needs: [job-context]
+    name: "Dump My context 2"
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo 'Dump my context = {
+            "context_tag": "${{ needs.job-context.outputs.context_tag }}",
+            "context_ref_type": "${{ needs.job-context.outputs.context_ref_type }}",
+            "context_ref_name": "${{ needs.job-context.outputs.context_ref_name }}",
+            "context_shaShort": "${{ needs.job-context.outputs.context_shaShort }}",
+            "context_branch_prefix": "${{ needs.job-context.outputs.context_branch_prefix }}"
+          }'
       #   continue-on-error: true
       #   run: |
       #     # echo 'refs/tags/v0.3.2-RC1' | sed  's/refs\/tags\/v\(.*\)$/\1/;tx;q100;:x' # if [ $? -eq 0 ]; then else fi
