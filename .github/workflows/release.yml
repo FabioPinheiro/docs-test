@@ -91,9 +91,13 @@ jobs:
       - name: test GitHub packages credentials
         run: |
           ls -la
+          echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           echo $HOME
+          echo "bbbbbbbbbbbbbbbbbbbbbbbb"
           pwd
+          echo "cccccccccccccccc"
           find $HOME/.sbt
+          echo "dddddddddddddddddddddd"
           find .
 
       - name: Build and Test
