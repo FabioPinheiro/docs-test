@@ -75,7 +75,10 @@ jobs:
         run: |
           ls -la
           echo $HOME
-          mkdir -p .sbt/1.0 && printf "realm=GitHub Package Registry\nhost=maven.pkg.github.com\nuser=test\npassword=pass\n" > .sbt/1.0/.credentials
+          pwd
+          mkdir -p /home/runner/.sbt/1.0/ && printf "realm=GitHub Package Registry\nhost=maven.pkg.github.com\nuser=test\npassword=pass\n" > /home/runner/.sbt/1.0/.credentials
+          ls -la
+
       - name: Build and Test
         run: |
           sbt -v +test
