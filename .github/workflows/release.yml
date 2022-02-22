@@ -98,7 +98,7 @@ jobs:
   test-context2:
     if: needs.job-context.outputs.context_ref_type == 'branch'
     needs: [job-context]
-    name: "Dump My context"
+    name: "Dump My context 2"
     runs-on: ubuntu-latest
     steps:
       - run: |
