@@ -9,6 +9,9 @@ on:
     branches:
       - "master"
       - "main"
+  pull_request:
+    branches:
+      - "master"
   workflow_dispatch:
 
 jobs:
@@ -72,6 +75,10 @@ jobs:
             "context_shaShort": "${{ needs.job-context.outputs.context_shaShort }}",
             "context_branch_prefix": "${{ needs.job-context.outputs.context_branch_prefix }}"
           }'
+      - name: Add Atala GitHub packages credentials
+        run: |
+          ls -la
+          mkdir -p /root/.sbt && printf "realm=GitHub Package Registry\nhost=maven.pkg.github.com\nuser=test\npassword=pass\n" > /root/.sbt/.credentials
 
   test-context2:
     if: needs.job-context.outputs.context_ref_type == 'branch'
