@@ -61,6 +61,25 @@ jobs:
             "shaShort": "${{ steps.git-context.outputs.shaShort }}"
           }'
 
+  test-sbt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 11
+      - name: Add Atala GitHub packages credentials
+        run: |
+          ls -la
+          mkdir -p /root/.sbt && printf "realm=GitHub Package Registry\nhost=maven.pkg.github.com\nuser=test\npassword=pass\n" > /root/.sbt/.credentials
+      - name: Build and Test
+        run: |
+          sbt -v +test
+          sbt -v "show credentials"
+
   test-context:
     if: (github.ref_type == 'branch') && (github.ref_name == 'main')
     needs: [job-context]
@@ -75,10 +94,6 @@ jobs:
             "context_shaShort": "${{ needs.job-context.outputs.context_shaShort }}",
             "context_branch_prefix": "${{ needs.job-context.outputs.context_branch_prefix }}"
           }'
-      - name: Add Atala GitHub packages credentials
-        run: |
-          ls -la
-          mkdir -p /root/.sbt && printf "realm=GitHub Package Registry\nhost=maven.pkg.github.com\nuser=test\npassword=pass\n" > /root/.sbt/.credentials
 
   test-context2:
     if: needs.job-context.outputs.context_ref_type == 'branch'
