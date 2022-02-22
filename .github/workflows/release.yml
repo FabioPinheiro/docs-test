@@ -74,7 +74,7 @@ jobs:
       - name: Add Atala GitHub packages credentials
         run: |
           ls -la
-          mkdir -p /root/.sbt && printf "realm=GitHub Package Registry\nhost=maven.pkg.github.com\nuser=test\npassword=pass\n" > /root/.sbt/.credentials
+          mkdir -p .sbt && printf "realm=GitHub Package Registry\nhost=maven.pkg.github.com\nuser=test\npassword=pass\n" > .sbt/.credentials
       - name: Build and Test
         run: |
           sbt -v +test
